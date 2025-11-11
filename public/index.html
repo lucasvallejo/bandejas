@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Remitos y Facturas</title>
+  <link rel="stylesheet" href="./css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios@1.6.2/dist/axios.min.js" defer></script>
+  <script type="module" src="./js/app.js" defer></script>
+</head>
+<body>
+  <div id="app" class="app hidden">
+    <header class="app__header">
+      <div class="app__brand">
+        <img src="./img/logo.png" alt="Logo" class="app__logo" onerror="this.style.display='none'">
+        <div>
+          <h1>FoodService - Circuito de Pagos</h1>
+          <p id="appUserRole" class="app__subtitle"></p>
+        </div>
+      </div>
+      <div class="app__session">
+        <img id="appUserAvatar" class="app__avatar" alt="avatar" />
+        <span id="appUserName"></span>
+        <button id="logoutBtn" class="btn btn--danger">Salir</button>
+      </div>
+    </header>
+    <div class="app__body">
+      <aside id="sidebar" class="sidebar"></aside>
+      <main id="mainContent" class="main"></main>
+      <section id="timelineDock" class="timeline-dock hidden">
+        <header class="timeline-dock__header">
+          <h2>Historial</h2>
+          <button id="timelineClose" class="btn btn--icon" title="Cerrar">&times;</button>
+        </header>
+        <div id="timelineContent" class="timeline-dock__content"></div>
+      </section>
+    </div>
+  </div>
+
+  <section id="loginView" class="login">
+    <form id="loginForm" class="card">
+      <h2>Iniciar sesión</h2>
+      <label for="userInput">Usuario</label>
+      <input id="userInput" name="user" required autocomplete="username">
+      <label for="passwordInput">Contraseña</label>
+      <input id="passwordInput" name="password" type="password" required autocomplete="current-password">
+      <button type="submit" class="btn btn--primary">Ingresar</button>
+    </form>
+  </section>
+
+  <template id="timelineItemTemplate">
+    <article class="timeline-item">
+      <header>
+        <span class="timeline-item__event"></span>
+        <time class="timeline-item__time"></time>
+      </header>
+      <div class="timeline-item__details"></div>
+      <footer>
+        <span class="timeline-item__user"></span>
+        <div class="timeline-item__actions"></div>
+      </footer>
+    </article>
+  </template>
+</body>
+</html>
