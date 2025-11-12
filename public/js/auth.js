@@ -1,6 +1,7 @@
 import { buildSidebar, permisosToRoles } from './utils/permisos.js';
 import { navigate } from './router.js';
 import { initFirebase } from './firebase.js';
+import { ensureUserProfile, loadStoredProfile } from './ui/onboarding.js';
 import './ui/timeline.js';
 
 const loginForm = document.getElementById('loginForm');
@@ -72,6 +73,14 @@ export async function login(event) {
     sessionStorage.setItem('em', em);
     if (manipulacion) sessionStorage.setItem('manipulacion', manipulacion);
 
+    const customProfile = await ensureUserProfile({
+      userId,
+      nombre: userData?.nombre ?? 'Usuario'
+    });
+    if (customProfile) {
+      sessionStorage.setItem('userCustomProfile', JSON.stringify(customProfile));
+    }
+
     postLogin();
   } catch (error) {
     console.error('Login failed', error);
@@ -92,10 +101,20 @@ export function postLogin() {
   }
 
   const userData = JSON.parse(sessionStorage.getItem('userData') ?? '{}');
+  let customProfile = JSON.parse(sessionStorage.getItem('userCustomProfile') ?? 'null');
+  if (!customProfile) {
+    const stored = loadStoredProfile(userId);
+    if (stored) {
+      customProfile = stored;
+      sessionStorage.setItem('userCustomProfile', JSON.stringify(stored));
+    }
+  }
+
   const currentUser = {
     uid: userId,
     nombre: userData?.nombre ?? 'Usuario',
-    rol: permisosToRoles(permisos)[0] ?? 'Colaborador'
+    rol: customProfile?.nivel ?? permisosToRoles(permisos)[0] ?? 'Colaborador',
+    sector: customProfile?.sectorNombre ?? ''
   };
 
   populateSessionHeader(currentUser);
@@ -110,13 +129,31 @@ export function postLogin() {
 
 function populateSessionHeader(currentUser) {
   document.getElementById('appUserName').textContent = currentUser.nombre;
-  document.getElementById('appUserRole').textContent = currentUser.rol;
   const avatar = document.getElementById('appUserAvatar');
   const url = sessionStorage.getItem('p_img');
   if (url) {
     avatar.src = url;
   } else {
     avatar.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(currentUser.nombre);
+  }
+
+  const metaContainer = document.getElementById('appUserMeta');
+  const roleTag = document.getElementById('appUserRole');
+  const sectorTag = document.getElementById('appUserSector');
+
+  if (roleTag) {
+    roleTag.textContent = currentUser.rol ?? '';
+    roleTag.classList.toggle('hidden', !currentUser.rol);
+  }
+
+  if (sectorTag) {
+    sectorTag.textContent = currentUser.sector ?? '';
+    sectorTag.classList.toggle('hidden', !currentUser.sector);
+  }
+
+  if (metaContainer) {
+    const hasMeta = Boolean(currentUser.rol || currentUser.sector);
+    metaContainer.classList.toggle('hidden', !hasMeta);
   }
 }
 
