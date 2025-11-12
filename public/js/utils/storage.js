@@ -10,6 +10,8 @@ export async function uploadAttachment(entity, entityId, file) {
     type: extension,
     path: `storage://${path}`,
     metadata,
+    fileName: file.name,
+    size: file.size,
     uploadedAt: serverTimestamp()
   };
 }
