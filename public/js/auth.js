@@ -1,4 +1,4 @@
-import { buildSidebar, permisosToRoles } from './utils/permisos.js';
+import { buildSidebar, normalizePermisos, permisosToRoles } from './utils/permisos.js';
 import { navigate } from './router.js';
 import { initFirebase } from './firebase.js';
 import { ensureUserProfile, loadStoredProfile } from './ui/onboarding.js';
@@ -92,8 +92,8 @@ export async function login(event) {
 
 export function postLogin() {
   const userId = sessionStorage.getItem('userId');
-  const permisos = JSON.parse(sessionStorage.getItem('userPermisos') ?? 'null');
-  if (!userId || !permisos) {
+  const rawPermisos = JSON.parse(sessionStorage.getItem('userPermisos') ?? 'null');
+  if (!userId) {
     sessionStorage.clear();
     loginView?.classList.remove('hidden');
     appContainer?.classList.add('hidden');
@@ -109,6 +109,8 @@ export function postLogin() {
       sessionStorage.setItem('userCustomProfile', JSON.stringify(stored));
     }
   }
+
+  const permisos = normalizePermisos(rawPermisos, customProfile);
 
   const currentUser = {
     uid: userId,
