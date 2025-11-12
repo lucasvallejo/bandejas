@@ -1,6 +1,6 @@
 const defaultConfig = {
-  databaseURL: '',
-  storageBucket: '',
+  databaseURL: 'https://pruebas2025.firebaseio.com/',
+  storageBucket: 'gs://cantina-89c6a.appspot.com/mesadeentrada',
   authTokenProvider: async () => null,
   features: {
     excepcion_firma_director: false

@@ -28,28 +28,58 @@ if (loginForm) {
 
 export async function login(event) {
   event?.preventDefault();
+
   const user = document.getElementById('userInput').value.trim();
-  const password = document.getElementById('passwordInput').value.trim();
-  if (!user || !password) return;
+  const pass = document.getElementById('passwordInput').value.trim();
+  if (!user || !pass) return;
+
   try {
-    const response = await axios.get(`https://auth.foodservice.com.ar/?type=login&user=${encodeURIComponent(user)}&access_token=1234567`, {
-      headers: { 'X-Password': password }
-    });
-    const { userData, userPermisos, userId, p_img, em, manipulacion } = response.data;
+    const url = `https://auth.foodservice.com.ar/index_dev.php?type=login&user=${encodeURIComponent(user)}&access_token=1234567`;
+
+    // ⚠️ Sin headers custom => evita el preflight
+    const response = await axios.get(url);
+
+    const row = Array.isArray(response.data) ? response.data[0] : null;
+    if (!row) throw new Error('Respuesta inválida');
+
+    // --- Validación de contraseña (igual a tu flujo histórico) ---
+    let expectedPassword = row?.Password?.[0]?.contrasena ?? null;
+    if (!expectedPassword) {
+      // Si no tiene contraseña definida, usa fecha de nacimiento AAAA-MM-DD => DDMMYYYY
+      const fecnac = row?.datos?.leg_fecnac; // "1982-07-01"
+      if (!fecnac) throw new Error('No se pudo calcular contraseña por fecha de nacimiento');
+      const [yyyy, mm, dd] = fecnac.split('-');
+      expectedPassword = `${dd}${mm}${yyyy}`;
+    }
+
+    if (pass !== expectedPassword) {
+      alert('Datos incorrectos. Verificá tus credenciales.');
+      return;
+    }
+
+    // --- Persistencia de sesión (según JSON real) ---
+    const userData = row.datos ?? {};
+    const userPermisos = row.Permisos ?? [];
+    const userId = row.id ?? String(userData?.leg_numero ?? '');
+    const p_img = row.Perfil?.[0]?.imagen ?? '';
+    const em = userData?.leg_numero ?? '';                 // tu "em"
+    const manipulacion = row.Manipulador?.[0]?.link ?? '';
+
     sessionStorage.setItem('userData', JSON.stringify(userData));
     sessionStorage.setItem('userPermisos', JSON.stringify(userPermisos));
     sessionStorage.setItem('userId', userId);
-    sessionStorage.setItem('p_img', p_img ?? '');
-    sessionStorage.setItem('em', em ?? '');
-    if (manipulacion) {
-      sessionStorage.setItem('manipulacion', manipulacion);
-    }
+    sessionStorage.setItem('p_img', p_img);
+    sessionStorage.setItem('em', em);
+    if (manipulacion) sessionStorage.setItem('manipulacion', manipulacion);
+
     postLogin();
   } catch (error) {
     console.error('Login failed', error);
     alert('Credenciales inválidas o servicio no disponible');
   }
 }
+
+
 
 export function postLogin() {
   const userId = sessionStorage.getItem('userId');
