@@ -13,9 +13,13 @@
     <header class="app__header">
       <div class="app__brand">
         <img src="./img/logo.png" alt="Logo" class="app__logo" onerror="this.style.display='none'">
-        <div>
-          <h1>FoodService - Circuito de Pagos</h1>
-          <p id="appUserRole" class="app__subtitle"></p>
+        <div class="app__headline">
+          <h1>FoodService · Circuito de Pagos</h1>
+          <p class="app__subtitle">Seguimiento inteligente de remitos, facturas y pagos</p>
+          <div id="appUserMeta" class="app__meta hidden" aria-live="polite">
+            <span id="appUserRole" class="tag"></span>
+            <span id="appUserSector" class="tag tag--outline"></span>
+          </div>
         </div>
       </div>
       <div class="app__session">
@@ -38,13 +42,60 @@
   </div>
 
   <section id="loginView" class="login">
-    <form id="loginForm" class="card">
-      <h2>Iniciar sesión</h2>
-      <label for="userInput">Usuario</label>
-      <input id="userInput" name="user" required autocomplete="username">
-      <label for="passwordInput">Contraseña</label>
-      <input id="passwordInput" name="password" type="password" required autocomplete="current-password">
-      <button type="submit" class="btn btn--primary">Ingresar</button>
+    <div class="login__wrapper">
+      <div class="login__intro">
+        <h2>Bienvenido/a al circuito digital de pagos</h2>
+        <p>Centralizá las gestiones de órdenes, remitos, facturas y propuestas con una experiencia diseñada para equipos modernos.</p>
+        <ul class="login__features">
+          <li>Panel único con trazabilidad integral.</li>
+          <li>Alertas inteligentes según tu nivel de autorización.</li>
+          <li>Configuración personalizada por sector y operación.</li>
+        </ul>
+      </div>
+      <form id="loginForm" class="card login__form" autocomplete="on">
+        <header>
+          <p class="login__eyebrow">Ingresá con tus credenciales FoodService</p>
+          <h2>Iniciar sesión</h2>
+        </header>
+        <label for="userInput">Usuario</label>
+        <input id="userInput" name="user" required autocomplete="username" placeholder="tu.usuario@foodservice.com.ar">
+        <label for="passwordInput">Contraseña</label>
+        <input id="passwordInput" name="password" type="password" required autocomplete="current-password" placeholder="Contraseña">
+        <button type="submit" class="btn btn--primary">Ingresar</button>
+      </form>
+    </div>
+  </section>
+
+  <section id="onboardingOverlay" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+    <form id="onboardingForm" class="modal onboarding" novalidate>
+      <div id="onboardingLoading" class="onboarding__loading hidden" aria-hidden="true">
+        <span class="onboarding__spinner" aria-hidden="true"></span>
+        <span>Sincronizando sectores...</span>
+      </div>
+      <header class="onboarding__header">
+        <p class="onboarding__eyebrow">Configuración inicial</p>
+        <h2 id="onboardingTitle">Personalizá tu experiencia</h2>
+        <p>Hola <strong id="onboardingName">equipo FoodService</strong>, contanos tu nivel de autorización y el sector al que pertenecés para ajustar el circuito de aprobación.</p>
+      </header>
+      <div class="onboarding__body">
+        <label class="onboarding__field" for="authLevelSelect">
+          <span>Nivel de autorización</span>
+          <select id="authLevelSelect" required>
+            <option value="" disabled selected>Seleccioná una opción</option>
+          </select>
+        </label>
+        <label class="onboarding__field" for="sectorSelect">
+          <span>Operación / Sector</span>
+          <select id="sectorSelect" required disabled>
+            <option value="">Cargando sectores...</option>
+          </select>
+        </label>
+        <p id="onboardingError" class="onboarding__error hidden" role="alert"></p>
+      </div>
+      <footer class="onboarding__footer">
+        <button type="button" id="onboardingRetry" class="btn btn--ghost hidden">Reintentar carga</button>
+        <button type="submit" id="onboardingSubmit" class="btn btn--primary" disabled>Comenzar</button>
+      </footer>
     </form>
   </section>
 
